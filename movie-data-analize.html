@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Movie API Analized</title>
+	<script
+	  src="http://code.jquery.com/jquery-3.2.1.min.js"
+	  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+	  crossorigin="anonymous"></script>
+</head>
+<body>
+	<!--used to append the final anwers -->
+	<div id="user"></div>
+	<div id="month"></div>
+	<div id="movie"></div>
+	<script type="text/javascript">
+		/* gave up getting AJAX calls this way.
+		function getMovieData() {
+			var url = 'http://159.203.175.239:9001/movies.txt';
+			var movieData = callFunction(url, function(responseText) {
+				return responseText;
+			});
+			return movieData;
+		}
+
+		function callFunction(url, callback) {
+			var xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					callback(xhr.responseText);
+				}
+			};
+			xhr.open("GET", url, true);
+			xhr.send();
+		}
+		console.log(getMovieData());
+		*/
+		//every analizing pice of code is written inside of this.
+		$.get("http://159.203.175.239:9001/movies.txt", function(response) { 
+			var dataArr = response.split("\n");//split data by movies
+			var movieData = dataArr.splice(2, dataArr.length -3);//get rid of the unimportant info
+			//inputs movie ID to spit back the title for final answer
+			function selectMovie(index) {
+				return movieData[index - 1];
+			}
+			//ajax call to get the checouts data. All 10,000 checkouts!
+			getUserData();
+			function getUserData() {
+				$.get("http://159.203.175.239:9001/checkouts.txt", function(response)  {
+					var dataArr = response.split("\n");//splits txt into an array of checkouts
+					var arrInArr = [];
+					for (var i = 0; i < dataArr.length; i++) {
+						arrInArr[i] = dataArr[i].split(" ");//splits each index of array
+						arrInArr[i][0] = arrInArr[i][0].slice(4);//removes the word user
+						arrInArr[i][1] = numMonth(arrInArr[i][1]);//calls function to change word month into a number
+					}
+					//changes work month so we can use the mode function properly
+					function numMonth(arr) {
+						switch (arr) {
+							case 'jan':
+							return 1;
+							case 'feb':
+							return 2;
+							case 'mar':
+							return 3;
+							case 'apr':
+							return 4;
+							case 'may':
+							return 5;
+							case 'jun':
+							return 6;
+							case 'jul':
+							return 7;
+							case 'aug':
+							return 8;
+							case 'sep':
+							return 9;
+							case 'oct':
+							return 10;
+							case 'nov':
+							return 11;
+							case 'dec':
+							return 12;
+						}
+					}
+					//changes the number month back into a word for the final answer
+					function strMonth(arr) {
+						switch (arr) {
+							case 1:
+							return 'Jan';
+							case 2:
+							return 'Feb';
+							case 3:
+							return 'Mar';
+							case 4:
+							return 'Apr';
+							case 5:
+							return 'May';
+							case 6:
+							return 'Jun';
+							case 7:
+							return 'Jul';
+							case 8:
+							return 'Aug';
+							case 9:
+							return 'Sep';
+							case 10:
+							return 'Oct';
+							case 11:
+							return 'Nov';
+							case 12:
+							return 'Dec';
+						}
+					}
+					//answers the homework questions
+					console.log(findMode(arrInArr, 0));
+					console.log(strMonth(findMode(arrInArr, 1)));
+					console.log(findMode(arrInArr, 2));
+					//the mode function used from previous homework. abstracted it some to take in the index info to check the three pieces of info from the checkouts array.
+					function findMode(arr, index) {
+						var counts = [];
+						var maxcount = 1;
+						var maxnum = arr[0][index];
+						//count the numbers in arr, into counts
+						for (i = 0; i < arr.length; i++) {
+							if (counts[arr[i][index]] === undefined) {
+								counts[arr[i][index]] = 0;
+							}
+							counts[arr[i][index]] = counts[arr[i][index]] + 1;
+						}
+						//find the max number in the counts array
+						for (j = 0; j < counts.length; j++) {
+							if (counts[j] > maxcount) {
+								maxcount = counts[j];
+								maxnum = j;
+							}
+						}
+						return (maxnum);
+					}
+					//appends the answers to the window to answer them in a complete sentence.
+					$('#user').append("<h2>The person with the most checkouts is user" + findMode(arrInArr, 0) + "</h2>");
+					$('#month').append("<h2>The Month with the most checkouts is " + strMonth(findMode(arrInArr, 1)) + "</h2>");
+					$('#movie').append("<h2>The movie with the most checkouts is " + selectMovie(findMode(arrInArr, 2)).slice(3, movieData[findMode(arrInArr, 2)].length - 6) + "</h2>");
+				});
+			}
+		});
+
+	</script>
+</body>
+</html>
